@@ -1,0 +1,4 @@
+include ':net'
+include ':ksoup'
+include ':app'
+rootProject.name = "Ksoup"

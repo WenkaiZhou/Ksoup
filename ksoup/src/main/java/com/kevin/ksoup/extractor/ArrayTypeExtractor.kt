@@ -1,0 +1,54 @@
+package com.kevin.ksoup.extractor
+
+import com.kevin.ksoup.Ksoup
+import com.kevin.ksoup.annontation.Pick
+import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
+import org.jsoup.select.Selector
+import java.lang.reflect.Field
+import java.lang.reflect.ParameterizedType
+
+/**
+ * ArrayTypeExtractor
+ *
+ * @author zwenkai@foxmail.com, Created on 2021-02-21 17:49:48
+ *         Major Function：<b></b>
+ *         <p/>
+ *         Note: If you modify this class please fill in the following content as a record.
+ * @author mender，Modified Date Modify Content:
+ */
+
+internal object ArrayTypeExtractor : TypeExtractor<ArrayList<*>>() {
+
+    override fun extract(node: Element, field: Field, defVal: ArrayList<*>?, ksoup: Ksoup): ArrayList<*>? {
+        val fieldPick = field.getAnnotation(Pick::class.java) ?: return defVal
+        val cssQuery = fieldPick.value
+        val elements = extractList(node, cssQuery)
+        val list = ArrayList<Any>()
+        for (childNode in elements) {
+            val genericType = field.genericType
+            if (genericType is ParameterizedType) {
+                val args = genericType.actualTypeArguments
+                val clazz = Class.forName((args[0] as Class<*>).name)
+                val instance = clazz.newInstance()
+                clazz.declaredFields.forEach { childField ->
+                    ksoup.getFieldValue(childNode, instance, childField)
+                }
+                list.add(instance)
+            }
+        }
+        return list
+    }
+
+    /**
+     * Find elements that match the [Selector] CSS query, with target element as the starting context. Matched elements
+     * may include this element, or any of its children.
+     *
+     * @param element   the element
+     * @param cssQuery  a [Selector] CSS-like query
+     * @return matching elements, empty if none
+     */
+    private fun extractList(element: Element, cssQuery: String): Elements {
+        return element.select(cssQuery)
+    }
+}
