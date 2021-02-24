@@ -4,7 +4,7 @@ package com.kevin.ksoup
  * Attr
  *
  * @author zwenkai@foxmail.com, Created on 2020-11-20 11:28:41
- *         Major Function：<b></b>
+ *         Major Function：<b>The html tag Attrs</b>
  *         <p/>
  *         Note: If you modify this class please fill in the following content as a record.
  * @author mender，Modified Date Modify Content:

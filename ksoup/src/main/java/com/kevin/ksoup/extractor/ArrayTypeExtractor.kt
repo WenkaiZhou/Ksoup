@@ -12,7 +12,7 @@ import java.lang.reflect.ParameterizedType
  * ArrayTypeExtractor
  *
  * @author zwenkai@foxmail.com, Created on 2021-02-21 17:49:48
- *         Major Function：<b></b>
+ *         Major Function：<b>Array type extractor</b>
  *         <p/>
  *         Note: If you modify this class please fill in the following content as a record.
  * @author mender，Modified Date Modify Content:

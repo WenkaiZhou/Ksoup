@@ -9,7 +9,7 @@ import java.lang.reflect.Field
  * LongTypeExtractor
  *
  * @author zwenkai@foxmail.com, Created on 2021-02-21 17:34:49
- *         Major Function：<b></b>
+ *         Major Function：<b>Long type extractor</b>
  *         <p/>
  *         Note: If you modify this class please fill in the following content as a record.
  * @author mender，Modified Date Modify Content:

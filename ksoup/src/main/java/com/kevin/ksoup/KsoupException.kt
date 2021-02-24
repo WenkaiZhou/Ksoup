@@ -1,7 +1,7 @@
 package com.kevin.ksoup
 
 /**
- * HtmlParseException
+ * KsoupException
  *
  * @author zwenkai@foxmail.com, Created on 2020-11-20 17:26:59
  *         Major Function：<b>This exception is raised if there is a serious issue that occurs during parsing of a html string</b>
