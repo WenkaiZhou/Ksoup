@@ -6,6 +6,7 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import java.lang.reflect.Field
+import java.lang.reflect.ParameterizedType
 
 /**
  * Ksoup
@@ -79,25 +80,36 @@ class Ksoup {
     internal fun getFieldValue(node: Element, obj: Any, field: Field) {
         field.isAccessible = true
         val defVal = field[obj]
-        when (field.type) {
-            String::class.java -> field[obj] =
-                StringTypeExtractor.extract(node, field, defVal as String?, this)
-            Int::class.java -> field[obj] =
-                IntTypeExtractor.extract(node, field, defVal as Int?, this)
-            Boolean::class.java -> field[obj] =
-                BooleanTypeExtractor.extract(node, field, defVal as Boolean?, this)
-            Byte::class.java -> field[obj] =
-                ByteTypeExtractor.extract(node, field, defVal as Byte?, this)
-            Short::class.java -> field[obj] =
-                ShortTypeExtractor.extract(node, field, defVal as Short?, this)
-            Long::class.java -> field[obj] =
-                LongTypeExtractor.extract(node, field, defVal as Long?, this)
-            Double::class.java -> field[obj] =
-                DoubleTypeExtractor.extract(node, field, defVal as Double?, this)
-            Float::class.java -> field[obj] =
-                FloatTypeExtractor.extract(node, field, defVal as Float?, this)
-            List::class.java -> field[obj] =
-                ArrayTypeExtractor.extract(node, field, defVal as ArrayList<*>?, this)
+
+        when (val genericType = field.genericType) {
+            is Class<*> -> {
+                when (genericType) {
+                    String::class.java -> field[obj] =
+                        StringTypeExtractor.extract(node, field, defVal as String?, this)
+                    Int::class.java -> field[obj] =
+                        IntTypeExtractor.extract(node, field, defVal as Int?, this)
+                    Boolean::class.java -> field[obj] =
+                        BooleanTypeExtractor.extract(node, field, defVal as Boolean?, this)
+                    Byte::class.java -> field[obj] =
+                        ByteTypeExtractor.extract(node, field, defVal as Byte?, this)
+                    Short::class.java -> field[obj] =
+                        ShortTypeExtractor.extract(node, field, defVal as Short?, this)
+                    Long::class.java -> field[obj] =
+                        LongTypeExtractor.extract(node, field, defVal as Long?, this)
+                    Double::class.java -> field[obj] =
+                        DoubleTypeExtractor.extract(node, field, defVal as Double?, this)
+                    Float::class.java -> field[obj] =
+                        FloatTypeExtractor.extract(node, field, defVal as Float?, this)
+                    else -> field[obj] = ObjectTypeExtractor.extract(node, field, defVal, this)
+                }
+            }
+            is ParameterizedType -> {
+                when (genericType.rawType) {
+                    List::class.java -> field[obj] =
+                        ArrayTypeExtractor.extract(node, field, defVal as ArrayList<*>?, this)
+                    else -> throw KsoupException("Type ${field.type} is not supported.")
+                }
+            }
             else -> throw KsoupException("Type ${field.type} is not supported.")
         }
     }
