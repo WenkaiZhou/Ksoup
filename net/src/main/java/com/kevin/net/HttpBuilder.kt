@@ -26,7 +26,7 @@ internal object HttpBuilder {
      * @param connectTimeout    连接超时配置
      * @param readTimeout       读取超时配置
      * @param writeTimeout      写超时配置
-     * @param action            对外暴露的配置方法
+     * @param okClientAction    对外暴露的配置方法
      */
     fun createOkClient(
         isReleased: Boolean,
@@ -44,11 +44,9 @@ internal object HttpBuilder {
         okClientAction?.invoke(builder)
 
         if (!isReleased) {
-            val loggingInterceptor = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-                override fun log(message: String) {
-                    println("HttpBuilder: $message")
-                }
-            })
+            val loggingInterceptor = HttpLoggingInterceptor { message ->
+                println("HttpBuilder: $message")
+            }
             loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
             builder.addInterceptor(loggingInterceptor)
         }
@@ -68,7 +66,7 @@ internal object HttpBuilder {
 
         retrofitAction?.invoke(builder)
 
-        return  builder.build()
+        return builder.build()
     }
 
 }

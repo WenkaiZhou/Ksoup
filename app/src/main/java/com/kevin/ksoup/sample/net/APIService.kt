@@ -17,4 +17,7 @@ interface APIService {
 
     @GET("/recipe.html")
     suspend fun recipeHome(): RecipeHomeEntity
+
+    @GET
+    suspend fun requestUrl(@Url url: String): String
 }
