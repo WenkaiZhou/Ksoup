@@ -42,16 +42,16 @@ abstract class TypeExtractor<T> {
         return if (cssQuery.contains(":first")) {
             val realCssQuery = cssQuery.replace(":first", "")
             if (Attrs.TEXT == attributeKey) {
-                element.selectFirst(realCssQuery).text()
+                element.selectFirst(realCssQuery).text() ?: ""
             } else {
-                element.selectFirst(realCssQuery).attr(attributeKey)
+                element.selectFirst(realCssQuery).attr(attributeKey) ?: ""
             }
         } else if (cssQuery.contains(":last")) {
             val realCssQuery = cssQuery.replace(":last", "")
             if (Attrs.TEXT == attributeKey) {
                 element.selectLast(realCssQuery)?.text() ?: ""
             } else {
-                element.select(realCssQuery).last().attr(attributeKey)
+                element.selectLast(realCssQuery)?.attr(attributeKey) ?: ""
             }
         } else {
             if (Attrs.TEXT == attributeKey) {

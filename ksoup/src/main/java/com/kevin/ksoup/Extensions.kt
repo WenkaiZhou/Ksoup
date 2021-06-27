@@ -12,6 +12,6 @@ import org.jsoup.nodes.Element
  * @author mender，Modified Date Modify Content:
  */
 
-fun Element.selectLast(cssQuery: String): Element? {
+internal fun Element.selectLast(cssQuery: String): Element? {
     return this.select(cssQuery).last() ?: null
 }
