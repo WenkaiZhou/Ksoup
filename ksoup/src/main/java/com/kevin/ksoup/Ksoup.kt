@@ -86,6 +86,8 @@ class Ksoup {
                 LongTypeExtractor.extract(node, field, defVal as Long?, this)
             Float::class.java -> field[obj] =
                 FloatTypeExtractor.extract(node, field, defVal as Float?, this)
+            Short::class.java -> field[obj] =
+                ShortTypeExtractor.extract(node, field, defVal as Short?, this)
             String::class.java -> field[obj] =
                 StringTypeExtractor.extract(node, field, defVal as String?, this)
             Double::class.java -> field[obj] =
