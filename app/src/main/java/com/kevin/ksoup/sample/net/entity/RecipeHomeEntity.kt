@@ -20,6 +20,9 @@ class RecipeHomeEntity {
 
     @Pick("div.wrap div.w.clear div.recipe_index_n10.mt20.clear.jtl a")
     var lll: List<Entrance>? = null
+
+    @Pick("div.wrap div.w.clear div.home_index_slider.mt10 div#home_index_slider ul li")
+    var recipe: RecipeEntity? = null
 }
 
 class RecipeEntity {

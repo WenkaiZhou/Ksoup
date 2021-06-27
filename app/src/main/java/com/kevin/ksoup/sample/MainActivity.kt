@@ -2,6 +2,8 @@ package com.kevin.ksoup.sample
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.TextView
+import com.google.gson.Gson
 import com.kevin.ksoup.sample.net.HtmlConverterFactory
 import com.kevin.ksoup.sample.net.StringConvertFactory
 import com.kevin.net.HttpHelper
@@ -27,9 +29,7 @@ class MainActivity : AppCompatActivity() {
             recipeHome.recipeList?.forEach {
                 println("title = ${it.title}, url = ${it.url}, totalCount = ${it.totalCount}")
             }
-
-            val result = apiService.requestUrl("https://fanyi.baidu.com/#en/zh/Relative%20Url")
-            println("result = $result")
+            findViewById<TextView>(R.id.tv_content).text = recipeHome.recipe?.title
         }
     }
 
