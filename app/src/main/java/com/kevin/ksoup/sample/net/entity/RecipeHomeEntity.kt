@@ -16,16 +16,16 @@ import com.kevin.ksoup.annontation.Pick
 @Pick("body")
 class RecipeHomeEntity {
     @Pick("div.wrap div.w.clear div.home_index_slider.mt10 div#home_index_slider ul li")
-    var recipeList: List<RecipeEntity>? = null
+    var banner: List<BannerItem>? = null
 
     @Pick("div.wrap div.w.clear div.recipe_index_n10.mt20.clear.jtl a")
-    var lll: List<Entrance>? = null
+    var tags: List<TagItem>? = null
 
-    @Pick("div.wrap div.w.clear div.home_index_slider.mt10 div#home_index_slider ul li")
-    var recipe: RecipeEntity? = null
+    @Pick("div.wrap div.w.clear div#recipeindex_living.big4_list.clear.mt10 ul li")
+    var recipes: List<RecipesItem>? = null
 }
 
-class RecipeEntity {
+class BannerItem {
     @Pick("a", attr = Attrs.TITLE)
     var title: String = ""
 
@@ -36,11 +36,18 @@ class RecipeEntity {
     var totalCount: Int = 0
 }
 
-class Entrance {
+class TagItem {
     @Pick("a img", attr = Attrs.SRC)
     var icon: String = ""
 
     @Pick("a", attr = Attrs.TITLE)
     var title: String = ""
 
+}
+
+class RecipesItem {
+    @Pick("a i img", attr = Attrs.SRC)
+    var picture: String = ""
+    @Pick("a p")
+    var name: String = ""
 }
