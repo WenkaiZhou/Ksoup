@@ -10,6 +10,36 @@
 implementation 'com.zwenkai:ksoup:1.0.0'
 ```
 
+## 说明
+
+1. 跟进Html结构定义Model
+
+    ```kotlin
+    @Pick("body")
+   class HomeEntity {
+   
+       @Pick("div.wap_searchbox form#wap_a_searchform div input#wap_a_search", attr = "placeholder")
+       var searchPlaceholder: String = ""
+   
+       @Pick("div.box div.channel div.channellist")
+       var channelList: List<ChannelItem>? = null
+   }
+   
+   class ChannelItem {
+   @Pick("a div.chamsg")
+   var title: String = ""
+   
+       @Pick("a img", attr = Attrs.SRC)
+       var url: String = ""
+   }
+   ```
+   
+2. Html解析
+
+   ```kotlin
+   val model = ksoup.parse(htmlContent, XxxModel::class.java)
+   ```
+
 ## License
 
 ```text
