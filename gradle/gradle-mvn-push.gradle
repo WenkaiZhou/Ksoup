@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Kevin zhou
+ * Copyright 2021 Kevin zhou
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven'
+apply plugin: 'signing'
 
 // load properties
 Properties properties = new Properties()
 File localPropertiesFile = rootProject.file("local.properties");
-if(localPropertiesFile.exists()){
+if (localPropertiesFile.exists()) {
     properties.load(localPropertiesFile.newDataInputStream())
 }
 
@@ -28,29 +27,52 @@ def developerId = properties.getProperty("POM_DEVELOPER_ID")
 def developerName = properties.getProperty("POM_DEVELOPER_NAME")
 def developerEmail = properties.getProperty("POM_DEVELOPER_EMAIL")
 
-def bintrayUser = properties.getProperty("BINTRAY_USER")
-def bintrayApikey = properties.getProperty("BINTRAY_APIKEY")
+def ossrhUser = properties.getProperty("OSSRH_USER")
+def ossrhPswd = properties.getProperty("OSSRH_PSWD")
 
-group = GROUP
+// 签名
+signing {
+    required { gradle.taskGraph.hasTask("uploadArchives") }
+    sign configurations.archives
+}
 
-// This generates POM.xml with proper parameters
-install {
-    repositories.mavenInstaller {
-        pom {
-            project {
-                name PROJECT_NAME
-                groupId GROUP
-                artifactId POM_ARTIFACT_ID
-                version VERSION_NAME
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { deployment -> signing.signPom(deployment) }
+
+            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//            repository(url: "file://${rootProject.projectDir}/android-repo/m2repository") {
+                authentication(userName: ossrhUser, password: ossrhPswd)
+            }
+
+            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
+                authentication(userName: ossrhUser, password: ossrhPswd)
+            }
+
+            pom.groupId = GROUP
+            pom.artifactId = POM_ARTIFACT_ID
+            pom.version = VERSION_NAME
+
+            pom.project {
                 packaging POM_PACKAGING
+                name PROJECT_NAME
                 description POM_DESCRIPTION
                 url PROJECT_URL
+
+                scm {
+                    connection GIT_URL
+                    developerConnection WEB_URL
+                    url PROJECT_URL
+                }
+
                 licenses {
                     license {
                         name 'The Apache Software License, Version 2.0'
                         url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
+
                 developers {
                     developer {
                         id developerId
@@ -58,34 +80,113 @@ install {
                         email developerEmail
                     }
                 }
-                scm {
-                    connection GIT_URL
-                    developerConnection WEB_URL
-                    url PROJECT_URL
-                }
             }
         }
     }
 
-}
-
-// bintray configuration
-bintray {
-    user = bintrayUser
-    key = bintrayApikey
-    configurations = ['archives']
-    pkg {
-        repo = "maven"
-        name = PROJECT_NAME
-        version VERSION_NAME
-        websiteUrl = WEB_URL
-        vcsUrl = GIT_URL
-        licenses = ["Apache-2.0"]
-        publish = true
+    // add javadoc/source jar tasks as artifacts
+    if (project.plugins.hasPlugin("com.android.library")) {
+        setupConfigureForAndroid(project)
+    } else {
+        setupConfigureForJava(project)
     }
+
+    java8Javadoc(project)
 }
 
-artifacts {
-    archives sourcesJar
-    archives javadocJar
+def setupConfigureForAndroid(Project project) {
+    project.tasks.create("androidJavadocs", Javadoc.class) {
+        if (plugins.hasPlugin("kotlin-android")) {
+            source = project.android.sourceSets.main.java.srcDirs
+        }
+        failOnError true
+        classpath += project.files(project.android.getBootClasspath().join(File.pathSeparator))
+
+        exclude '**/internal/*'
+    }
+
+    def androidJavadocsJar = project.tasks.create("androidJavadocsJar", Jar.class) {
+        group = 'jar'
+        classifier = 'javadoc'
+    }
+
+    if (plugins.hasPlugin('kotlin-android')) {
+        def dokkaOutput = "${project.docsDir}/dokka"
+        project.plugins.apply('org.jetbrains.dokka')
+        project.dokka {
+            outputFormat = "javadoc"
+            outputDirectory dokkaOutput
+
+        }
+        androidJavadocsJar.configure {
+            dependsOn "dokka"
+            from dokkaOutput
+        }
+    } else {
+        androidJavadocsJar.configure {
+            dependsOn "androidJavadocs"
+            from project.androidJavadocs.destinationDir
+        }
+    }
+
+    project.tasks.create("androidSourcesJar", Jar.class) {
+        classifier = 'sources'
+        from project.android.sourceSets.main.java.srcDirs
+    }
+
+    project.artifacts.add("archives", project.androidSourcesJar)
+    project.artifacts.add("archives", project.androidJavadocsJar)
+}
+
+def setupConfigureForJava(Project project) {
+    if (plugins.hasPlugin('groovy')) {
+        project.tasks.create("groovydocJar", Jar.class) {
+            classifier = 'groovydoc'
+            from project.groovydoc.destinationDir
+        }.dependsOn("groovydoc")
+    }
+
+    project.tasks.create("sourcesJar", Jar.class) {
+        classifier = 'sources'
+        from project.sourceSets.main.allSource
+    }.dependsOn("classes")
+
+    def javadocsJar = project.tasks.create("javadocsJar", Jar.class) {
+        group = 'jar'
+        classifier = 'javadoc'
+    }
+
+    if (project.plugins.hasPlugin("kotlin")) {
+        def dokkaOutput = "${project.docsDir}/dokka"
+        project.plugins.apply('org.jetbrains.dokka')
+        project.dokka {
+            outputFormat 'html'
+            outputDirectory dokkaOutput
+        }
+        javadocsJar.configure {
+            dependsOn "dokka"
+            from dokkaOutput
+        }
+    } else {
+        javadocsJar.configure {
+            dependsOn "javadoc"
+            from project.javadoc.destinationDir
+        }
+    }
+
+    project.artifacts.add("archives", project.javadocsJar)
+    if (plugins.hasPlugin('groovy')) {
+        project.artifacts.add("archives", project.groovydocJar)
+    }
+    project.artifacts.add("archives", project.sourcesJar)
+}
+
+def java8Javadoc(Project project) {
+    if (JavaVersion.current().isJava8Compatible()) {
+        project.allprojects {
+            tasks.withType(Javadoc) {
+                options.addStringOption('Xdoclint:none', '-quiet')
+            }
+        }
+    }
 }
