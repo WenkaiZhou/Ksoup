@@ -50,7 +50,7 @@ uploadArchives {
                 authentication(userName: ossrhUser, password: ossrhPswd)
             }
 
-            pom.groupId = GROUP
+            pom.groupId = GROUP_ID
             pom.artifactId = POM_ARTIFACT_ID
             pom.version = VERSION_NAME
 
