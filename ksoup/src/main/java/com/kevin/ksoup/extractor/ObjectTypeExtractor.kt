@@ -18,10 +18,10 @@ import java.lang.reflect.Field
 
 internal object ObjectTypeExtractor : TypeExtractor<Any>() {
 
-    override fun extract(rootNode: Element, field: Field, defVal: Any?, ksoup: Ksoup): Any? {
+    override fun extract(node: Element, field: Field, defVal: Any?, ksoup: Ksoup): Any? {
         val pickClazz = field.getAnnotation(Pick::class.java) ?: return defVal
         val cssQuery = pickClazz.value
-        val node = rootNode.selectFirst(cssQuery)
+        val firstNode = node.selectFirst(cssQuery)
 
         val obj: Any
         try {
@@ -31,9 +31,9 @@ internal object ObjectTypeExtractor : TypeExtractor<Any>() {
         } catch (e: Exception) {
             throw KsoupException(e)
         }
-        node.let {
+        firstNode.let {
             field.type.declaredFields.forEach { field ->
-                ksoup.getFieldValue(node, obj, field)
+                ksoup.getFieldValue(firstNode, obj, field)
             }
         }
         return obj
