@@ -1,6 +1,6 @@
 package com.kevin.ksoup.sample.net
 
-import com.kevin.ksoup.sample.net.entity.RecipeHomeEntity
+import com.kevin.ksoup.sample.net.entity.HomeEntity
 import retrofit2.http.*
 
 /**
@@ -15,8 +15,8 @@ import retrofit2.http.*
 
 interface APIService {
 
-    @GET("/recipe.html")
-    suspend fun recipeHome(): RecipeHomeEntity
+    @GET("/")
+    suspend fun home(): HomeEntity
 
     @GET
     suspend fun requestUrl(@Url url: String): String
