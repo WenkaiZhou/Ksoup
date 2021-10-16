@@ -22,7 +22,7 @@ internal object DoubleTypeExtractor : TypeExtractor<Double>() {
         val pickClazz = field.getAnnotation(Pick::class.java) ?: return defVal
         val value = IntTypeExtractor.getTargetText(node, pickClazz)
         return try {
-            value.toDouble()
+            value?.toDouble()
         } catch (e: NumberFormatException) {
             e.printStackTrace()
             defVal

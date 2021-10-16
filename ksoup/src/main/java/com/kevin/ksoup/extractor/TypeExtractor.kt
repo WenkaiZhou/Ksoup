@@ -5,6 +5,7 @@ import com.kevin.ksoup.Ksoup
 import com.kevin.ksoup.annontation.Pick
 import com.kevin.ksoup.selectLast
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import java.lang.reflect.Field
 import java.util.regex.Pattern
 
@@ -21,10 +22,10 @@ abstract class TypeExtractor<T> {
 
     abstract fun extract(node: Element, field: Field, defVal: T?, ksoup: Ksoup): T?
 
-    fun getTargetText(node: Element, pick: Pick): String {
+    fun getTargetText(node: Element, pick: Pick): String? {
         var content = extractText(node, pick.attr, pick.value)
         if (pick.regex.isNotEmpty()) {
-            content = getRegexText(content, pick.regex)
+            content = content?.let{getRegexText(it, pick.regex)}
         }
         return content
     }
@@ -38,27 +39,24 @@ abstract class TypeExtractor<T> {
      * @param attributeKey  the attribute key
      * @return              the target text
      */
-    private fun extractText(element: Element, attributeKey: String, cssQuery: String): String {
-        return if (cssQuery.contains(":first")) {
-            val realCssQuery = cssQuery.replace(":first", "")
-            if (Attrs.TEXT == attributeKey) {
-                element.selectFirst(realCssQuery).text() ?: ""
-            } else {
-                element.selectFirst(realCssQuery).attr(attributeKey) ?: ""
+    private fun extractText(element: Element, attributeKey: String, cssQuery: String): String? {
+        val selected: Element? = when {
+            cssQuery.contains(":first") -> {
+                val realCssQuery = cssQuery.replace(":first", "")
+                element.selectFirst(realCssQuery)
             }
-        } else if (cssQuery.contains(":last")) {
-            val realCssQuery = cssQuery.replace(":last", "")
-            if (Attrs.TEXT == attributeKey) {
-                element.selectLast(realCssQuery)?.text() ?: ""
-            } else {
-                element.selectLast(realCssQuery)?.attr(attributeKey) ?: ""
+            cssQuery.contains(":last") -> {
+                val realCssQuery = cssQuery.replace(":last", "")
+                element.selectLast(realCssQuery)
             }
-        } else {
-            if (Attrs.TEXT == attributeKey) {
-                element.select(cssQuery).text()
-            } else {
-                element.select(cssQuery).attr(attributeKey)
-            }
+            else -> element.select(cssQuery).first()
+        }
+        if (attributeKey === Attrs.HTML)
+            throw Error() //return selected?.html()
+        return when(attributeKey.toLowerCase()) {
+            Attrs.TEXT -> selected?.text()
+            Attrs.HTML, Attrs.INNER_HTML -> selected?.html()
+            else -> selected?.attr(attributeKey)
         }
     }
 

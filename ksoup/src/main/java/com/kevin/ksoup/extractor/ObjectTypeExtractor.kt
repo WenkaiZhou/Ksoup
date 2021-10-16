@@ -31,7 +31,7 @@ internal object ObjectTypeExtractor : TypeExtractor<Any>() {
         } catch (e: Exception) {
             throw KsoupException(e)
         }
-        firstNode.let {
+        firstNode?.let {
             field.type.declaredFields.forEach { field ->
                 ksoup.getFieldValue(firstNode, obj, field)
             }

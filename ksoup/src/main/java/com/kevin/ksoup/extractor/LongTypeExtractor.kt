@@ -21,7 +21,7 @@ internal object LongTypeExtractor : TypeExtractor<Long>() {
         val pickClazz = field.getAnnotation(Pick::class.java) ?: return defVal
         val value = IntTypeExtractor.getTargetText(node, pickClazz)
         return try {
-            value.toLong()
+            value?.toLong()
         } catch (e: NumberFormatException) {
             e.printStackTrace()
             defVal
