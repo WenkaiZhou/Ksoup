@@ -6,10 +6,10 @@ import org.jsoup.nodes.Element
 import java.lang.reflect.Field
 
 /**
- * FloatTypeExtractor
+ * ElementTypeExtractor
  *
  * @author zwenkai@foxmail.com, Created on 2021-02-21 17:36:56
- *         Major Function：<b>Float type extractor</b>
+ *         Major Function：<b>Element type extractor</b>
  *         <p/>
  *         Note: If you modify this class please fill in the following content as a record.
  * @author mender，Modified Date Modify Content:
@@ -23,3 +23,5 @@ internal object ElementTypeExtractor : TypeExtractor<Element>() {
         return value.first()
     }
 }
+
+

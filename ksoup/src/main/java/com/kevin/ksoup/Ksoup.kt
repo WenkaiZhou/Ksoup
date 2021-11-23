@@ -5,6 +5,7 @@ import com.kevin.ksoup.extractor.*
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import org.jsoup.select.Elements
 import java.lang.reflect.Field
 import java.lang.reflect.ParameterizedType
 
@@ -112,6 +113,7 @@ class Ksoup {
                     Double::class.java -> DoubleTypeExtractor.extract(node, field, defVal as Double?, this)
                     Float::class.java -> FloatTypeExtractor.extract(node, field, defVal as Float?, this)
                     Element::class.java -> ElementTypeExtractor.extract(node, field, defVal as Element?, this)
+                    Elements::class.java -> ElementsTypeExtractor.extract(node, field, defVal as Elements?, this)
                     else -> ObjectTypeExtractor.extract(node, field, defVal, this)
                 }
             }
