@@ -13,16 +13,6 @@ class ParsedArticle {
         val url: String? = null
     }
 
-    class FolderLabel {
-        @Pick("*")
-        var title: String? = null
-    }
-
-    class Folder {
-        @Pick("*", Attrs.HTML)
-        var content: String? = null
-    }
-
     @Pick("div.article-content div.indent", Attrs.HTML)
     var quote: String? = null
 
@@ -51,7 +41,7 @@ class ParsedArticle {
     var subpages: List<Subpage>? = null
 
     @Pick("div.folderlabel :not(.toggle-all-folders-button)")
-    var folderlabels: List<FolderLabel>? = null
+    var folderlabels: Elements? = null
 
     @Pick("div.folder")
     var folders: Elements? = null
