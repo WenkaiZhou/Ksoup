@@ -7,6 +7,7 @@ import com.kevin.ksoup.selectLast
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.lang.reflect.Field
+import java.util.*
 import java.util.regex.Pattern
 
 /**
@@ -40,23 +41,32 @@ abstract class TypeExtractor<T> {
      * @return              the target text
      */
     private fun extractText(element: Element, attributeKey: String, cssQuery: String): String? {
-        val selected: Element? = when {
+        val selected = extractElements(element, cssQuery)
+        return when(attributeKey.lowercase(Locale.getDefault())) {
+            Attrs.TEXT -> selected.text()
+            Attrs.HTML, Attrs.INNER_HTML -> selected.html()
+            else -> selected.attr(attributeKey)
+        }
+    }
+
+    protected fun extractElements(element: Element, cssQuery: String): Elements {
+        return when {
             cssQuery.contains(":first") -> {
                 val realCssQuery = cssQuery.replace(":first", "")
-                element.selectFirst(realCssQuery)
+                Elements(element.selectFirst(realCssQuery))
             }
             cssQuery.contains(":last") -> {
                 val realCssQuery = cssQuery.replace(":last", "")
-                element.selectLast(realCssQuery)
+                Elements(element.selectLast(realCssQuery))
             }
-            else -> element.select(cssQuery).first()
-        }
-        if (attributeKey === Attrs.HTML)
-            throw Error() //return selected?.html()
-        return when(attributeKey.toLowerCase()) {
-            Attrs.TEXT -> selected?.text()
-            Attrs.HTML, Attrs.INNER_HTML -> selected?.html()
-            else -> selected?.attr(attributeKey)
+            cssQuery.contains(":not") -> {
+                val regex = """\:not\((.*)\)""".toRegex()
+                val notPart = regex.find(cssQuery)?.groupValues?.get(1)
+                val realCssQuery = cssQuery.replace(regex, "")
+                val res = element.select(realCssQuery)
+                notPart?.let { res.not(it) } ?: res
+            }
+            else -> element.select(cssQuery)
         }
     }
 
@@ -76,3 +86,4 @@ abstract class TypeExtractor<T> {
         return ""
     }
 }
+

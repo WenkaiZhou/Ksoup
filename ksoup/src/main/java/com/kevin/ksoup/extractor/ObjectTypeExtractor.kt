@@ -33,7 +33,7 @@ internal object ObjectTypeExtractor : TypeExtractor<Any>() {
         }
         firstNode?.let {
             field.type.declaredFields.forEach { field ->
-                ksoup.getFieldValue(firstNode, obj, field)
+                ksoup.setFieldValue(firstNode, obj, field)
             }
         }
         return obj
