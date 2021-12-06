@@ -1,10 +1,14 @@
+@file:Suppress("JAVA_MODULE_DOES_NOT_EXPORT_PACKAGE")
+
 package com.kevin.ksoup.extractor
 
 import com.kevin.ksoup.Ksoup
 import com.kevin.ksoup.annontation.Pick
+import com.kevin.ksoup.validFields
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import org.jsoup.select.Selector
+import sun.reflect.misc.FieldUtil.getFields
 import java.lang.reflect.Field
 import java.lang.reflect.ParameterizedType
 
@@ -31,7 +35,8 @@ internal object ArrayTypeExtractor : TypeExtractor<ArrayList<*>>() {
                 val args = genericType.actualTypeArguments
                 val clazz = Class.forName((args[0] as Class<*>).name)
                 val instance = clazz.newInstance()
-                clazz.declaredFields.forEach { childField ->
+                val fs = getFields(clazz)
+                clazz.validFields().forEach { childField ->
                     ksoup.setFieldValue(childNode, instance, childField)
                 }
                 list.add(instance)

@@ -8,6 +8,7 @@ import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.lang.reflect.Field
 import java.lang.reflect.ParameterizedType
+import java.nio.charset.Charset
 
 /**
  * Ksoup
@@ -28,8 +29,9 @@ class Ksoup {
      * @param clazz the class of T
      * @return  an object of type T from the string.
      */
-    fun <T : Any> parse(html: String, clazz: Class<T>): T {
-        return parse(Jsoup.parse(html), clazz)
+    fun <T : Any> parse(html: String, clazz: Class<T>, charsetName: String): T {
+        val stream = html.byteInputStream(Charset.forName(charsetName))
+        return parse(Jsoup.parse(stream, charsetName, ""), clazz)
     }
 
     /**
@@ -39,8 +41,8 @@ class Ksoup {
      * @param html  the string from which the object is to be deserialized
      * @return  an object of type T from the string.
      */
-    inline fun <reified T : Any> parse(html: String): T {
-        return parse(Jsoup.parse(html), T::class.java)
+    inline fun <reified T : Any> parse(html: String, charsetName: String = Charsets.UTF_8.name()): T {
+        return parse(html, T::class.java, charsetName)
     }
 
     /**
@@ -62,7 +64,7 @@ class Ksoup {
             throw KsoupException(e)
         }
         rootNode?.let {
-            clazz.declaredFields.forEach { field ->
+            clazz.validFields().forEach { field ->
                 setFieldValue(rootNode, obj, field)
             }
         }
