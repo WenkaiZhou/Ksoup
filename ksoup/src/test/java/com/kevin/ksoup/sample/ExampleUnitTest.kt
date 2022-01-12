@@ -16,7 +16,7 @@ import java.nio.file.Paths
  * See [testing documentation](http://d.android.com/tools/testing).
  */
 class ExampleUnitTest {
-    private val testFolder = """C:\Users\Peter\work\other\Ksoup\ksoup\src\main\res"""
+    private val testFolder = """..\ksoup\src\main\res"""
     private var cookingArticle: String? = null
     private var tropesArticle: String? = null
 
