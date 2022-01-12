@@ -1,4 +1,4 @@
-include ':net'
 include ':ksoup'
+include ':net'
 include ':app'
 rootProject.name = "Ksoup"
