@@ -1,9 +1,6 @@
-@file:Suppress("JAVA_MODULE_DOES_NOT_EXPORT_PACKAGE")
-
 package com.kevin.ksoup
 
 import org.jsoup.nodes.Element
-import sun.reflect.misc.FieldUtil
 import java.lang.reflect.Field
 
 /**
@@ -21,6 +18,5 @@ internal fun Element.selectLast(cssQuery: String): Element? {
 }
 
 internal fun <T> Class<T>.validFields() : List<Field> {
-    val badFields = FieldUtil.getFields(this)
-    return this.declaredFields.filterNot { badFields.contains(it) }
+    return this.declaredFields.filterNot { it.name.contains("\$stable") }
 }
