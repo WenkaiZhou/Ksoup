@@ -7,7 +7,7 @@ import com.kevin.ksoup.selectLast
 import org.jsoup.nodes.Element
 import org.jsoup.select.Elements
 import java.lang.reflect.Field
-import java.util.*
+import java.util.Locale
 import java.util.regex.Pattern
 
 /**
