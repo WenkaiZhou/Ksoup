@@ -21,7 +21,7 @@ internal object ShortTypeExtractor : TypeExtractor<Short>() {
         val pickClazz = field.getAnnotation(Pick::class.java) ?: return defVal
         val value = IntTypeExtractor.getTargetText(node, pickClazz)
         return try {
-            value.toShort()
+            value?.toShort()
         } catch (e: NumberFormatException) {
             e.printStackTrace()
             defVal

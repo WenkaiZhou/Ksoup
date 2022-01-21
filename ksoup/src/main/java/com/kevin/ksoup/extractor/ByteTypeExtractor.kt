@@ -21,7 +21,7 @@ internal object ByteTypeExtractor : TypeExtractor<Byte>() {
         val pickClazz = field.getAnnotation(Pick::class.java) ?: return defVal
         val value = IntTypeExtractor.getTargetText(node, pickClazz)
         return try {
-            value.toByte()
+            value?.toByte()
         } catch (e: NumberFormatException) {
             e.printStackTrace()
             defVal

@@ -1,6 +1,7 @@
 package com.kevin.ksoup
 
 import org.jsoup.nodes.Element
+import java.lang.reflect.Field
 
 /**
  * Extensions
@@ -13,5 +14,9 @@ import org.jsoup.nodes.Element
  */
 
 internal fun Element.selectLast(cssQuery: String): Element? {
-    return this.select(cssQuery).last() ?: null
+    return this.select(cssQuery).last()
+}
+
+internal fun <T> Class<T>.validFields() : List<Field> {
+    return this.declaredFields.filterNot { it.name.contains("\$stable") }
 }

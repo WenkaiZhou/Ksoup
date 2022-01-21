@@ -2,9 +2,8 @@ package com.kevin.ksoup.extractor
 
 import com.kevin.ksoup.Ksoup
 import com.kevin.ksoup.annontation.Pick
+import com.kevin.ksoup.validFields
 import org.jsoup.nodes.Element
-import org.jsoup.select.Elements
-import org.jsoup.select.Selector
 import java.lang.reflect.Field
 import java.lang.reflect.ParameterizedType
 
@@ -23,7 +22,7 @@ internal object ArrayTypeExtractor : TypeExtractor<ArrayList<*>>() {
     override fun extract(node: Element, field: Field, defVal: ArrayList<*>?, ksoup: Ksoup): ArrayList<*>? {
         val fieldPick = field.getAnnotation(Pick::class.java) ?: return defVal
         val cssQuery = fieldPick.value
-        val elements = extractList(node, cssQuery)
+        val elements = extractElements(node, cssQuery)
         val list = ArrayList<Any>()
         for (childNode in elements) {
             val genericType = field.genericType
@@ -31,24 +30,12 @@ internal object ArrayTypeExtractor : TypeExtractor<ArrayList<*>>() {
                 val args = genericType.actualTypeArguments
                 val clazz = Class.forName((args[0] as Class<*>).name)
                 val instance = clazz.newInstance()
-                clazz.declaredFields.forEach { childField ->
-                    ksoup.getFieldValue(childNode, instance, childField)
+                clazz.validFields().forEach { childField ->
+                    ksoup.setFieldValue(childNode, instance, childField)
                 }
                 list.add(instance)
             }
         }
         return list
-    }
-
-    /**
-     * Find elements that match the [Selector] CSS query, with target element as the starting context. Matched elements
-     * may include this element, or any of its children.
-     *
-     * @param element   the element
-     * @param cssQuery  a [Selector] CSS-like query
-     * @return matching elements, empty if none
-     */
-    private fun extractList(element: Element, cssQuery: String): Elements {
-        return element.select(cssQuery)
     }
 }
