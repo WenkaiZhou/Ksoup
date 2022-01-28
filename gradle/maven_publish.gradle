@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 // load properties
@@ -30,163 +30,65 @@ def developerEmail = properties.getProperty("POM_DEVELOPER_EMAIL")
 def ossrhUser = properties.getProperty("OSSRH_USER")
 def ossrhPswd = properties.getProperty("OSSRH_PSWD")
 
-// 签名
-signing {
-    required { gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { deployment -> signing.signPom(deployment) }
+javadoc {
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
+}
 
-            repository(url: "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/") {
-//            repository(url: "file://${rootProject.projectDir}/android-repo/m2repository") {
-                authentication(userName: ossrhUser, password: ossrhPswd)
-            }
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
 
-            snapshotRepository(url: "https://s01.oss.sonatype.org/content/repositories/snapshots/") {
-                authentication(userName: ossrhUser, password: ossrhPswd)
-            }
+            groupId = GROUP_ID
+            artifactId = POM_ARTIFACT_ID
+            version = VERSION_NAME
 
-            pom.groupId = GROUP_ID
-            pom.artifactId = POM_ARTIFACT_ID
-            pom.version = VERSION_NAME
-
-            pom.project {
-                packaging POM_PACKAGING
-                name PROJECT_NAME
-                description POM_DESCRIPTION
-                url PROJECT_URL
-
-                scm {
-                    connection GIT_URL
-                    developerConnection WEB_URL
-                    url PROJECT_URL
-                }
-
-                licenses {
-                    license {
-                        name 'The Apache Software License, Version 2.0'
-                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    }
-                }
-
+            pom {
+                name = PROJECT_NAME
+                description = POM_DESCRIPTION
+                url = PROJECT_URL
                 developers {
                     developer {
-                        id developerId
-                        name developerName
-                        email developerEmail
+                        id = developerId
+                        name = developerName
+                        email = developerEmail
+                    }
+                }
+                scm {
+                    connection = GIT_URL
+                    developerConnection = WEB_URL
+                    url = PROJECT_URL
+                }
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
             }
         }
     }
-
-    // add javadoc/source jar tasks as artifacts
-    if (project.plugins.hasPlugin("com.android.library")) {
-        setupConfigureForAndroid(project)
-    } else {
-        setupConfigureForJava(project)
-    }
-
-    java8Javadoc(project)
-}
-
-def setupConfigureForAndroid(Project project) {
-    project.tasks.create("androidJavadocs", Javadoc.class) {
-        if (plugins.hasPlugin("kotlin-android")) {
-            source = project.android.sourceSets.main.java.srcDirs
-        }
-        failOnError true
-        classpath += project.files(project.android.getBootClasspath().join(File.pathSeparator))
-
-        exclude '**/internal/*'
-    }
-
-    def androidJavadocsJar = project.tasks.create("androidJavadocsJar", Jar.class) {
-        group = 'jar'
-        classifier = 'javadoc'
-    }
-
-    if (plugins.hasPlugin('kotlin-android')) {
-        def dokkaOutput = "${project.docsDir}/dokka"
-        project.plugins.apply('org.jetbrains.dokka')
-        project.dokka {
-            outputFormat = "javadoc"
-            outputDirectory dokkaOutput
-
-        }
-        androidJavadocsJar.configure {
-            dependsOn "dokka"
-            from dokkaOutput
-        }
-    } else {
-        androidJavadocsJar.configure {
-            dependsOn "androidJavadocs"
-            from project.androidJavadocs.destinationDir
-        }
-    }
-
-    project.tasks.create("androidSourcesJar", Jar.class) {
-        classifier = 'sources'
-        from project.android.sourceSets.main.java.srcDirs
-    }
-
-    project.artifacts.add("archives", project.androidSourcesJar)
-    project.artifacts.add("archives", project.androidJavadocsJar)
-}
-
-def setupConfigureForJava(Project project) {
-    if (plugins.hasPlugin('groovy')) {
-        project.tasks.create("groovydocJar", Jar.class) {
-            classifier = 'groovydoc'
-            from project.groovydoc.destinationDir
-        }.dependsOn("groovydoc")
-    }
-
-    project.tasks.create("sourcesJar", Jar.class) {
-        classifier = 'sources'
-        from project.sourceSets.main.allSource
-    }.dependsOn("classes")
-
-    def javadocsJar = project.tasks.create("javadocsJar", Jar.class) {
-        group = 'jar'
-        classifier = 'javadoc'
-    }
-
-    if (project.plugins.hasPlugin("kotlin")) {
-        def dokkaOutput = "${project.docsDir}/dokka"
-        project.plugins.apply('org.jetbrains.dokka')
-        project.dokka {
-            outputFormat 'html'
-            outputDirectory dokkaOutput
-        }
-        javadocsJar.configure {
-            dependsOn "dokka"
-            from dokkaOutput
-        }
-    } else {
-        javadocsJar.configure {
-            dependsOn "javadoc"
-            from project.javadoc.destinationDir
-        }
-    }
-
-    project.artifacts.add("archives", project.javadocsJar)
-    if (plugins.hasPlugin('groovy')) {
-        project.artifacts.add("archives", project.groovydocJar)
-    }
-    project.artifacts.add("archives", project.sourcesJar)
-}
-
-def java8Javadoc(Project project) {
-    if (JavaVersion.current().isJava8Compatible()) {
-        project.allprojects {
-            tasks.withType(Javadoc) {
-                options.addStringOption('Xdoclint:none', '-quiet')
+    repositories {
+        maven {
+            allowInsecureProtocol true
+            def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = ossrhUser
+                password = ossrhPswd
             }
         }
     }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
