@@ -22,7 +22,7 @@ class HtmlConverterFactory private constructor(private val ksoup: Ksoup) : Conve
     override fun responseBodyConverter(type: Type, annotations: Array<Annotation>, retrofit: Retrofit): Converter<ResponseBody, *>? {
         return if (type is Class<*> && type.getAnnotation(Pick::class.java) != null) {
             Converter<ResponseBody, Any> { value ->
-                val result = ksoup.parse(value.string(), type)
+                val result = ksoup.parse(value.string(), type, Charsets.UTF_8.name())
                 value.close()
                 result
             }
