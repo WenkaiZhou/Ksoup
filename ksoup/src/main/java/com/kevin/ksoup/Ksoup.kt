@@ -26,12 +26,10 @@ class Ksoup {
      *
      * @param T     the type of the desired object
      * @param html  the string from which the object is to be deserialized
-     * @param clazz the class of T
      * @return  an object of type T from the string.
      */
-    fun <T : Any> parse(html: String, clazz: Class<T>, charsetName: String): T {
-        val stream = html.byteInputStream(Charset.forName(charsetName))
-        return parse(Jsoup.parse(stream, charsetName, ""), clazz)
+    inline fun <reified T : Any> parse(html: String, charsetName: String = Charsets.UTF_8.name()): T {
+        return parse(html, T::class.java, charsetName)
     }
 
     /**
@@ -39,10 +37,12 @@ class Ksoup {
      *
      * @param T     the type of the desired object
      * @param html  the string from which the object is to be deserialized
+     * @param clazz the class of T
      * @return  an object of type T from the string.
      */
-    inline fun <reified T : Any> parse(html: String, charsetName: String = Charsets.UTF_8.name()): T {
-        return parse(html, T::class.java, charsetName)
+    fun <T : Any> parse(html: String, clazz: Class<T>, charsetName: String = Charsets.UTF_8.name()): T {
+        val stream = html.byteInputStream(Charset.forName(charsetName))
+        return parse(Jsoup.parse(stream, charsetName, ""), clazz)
     }
 
     /**
