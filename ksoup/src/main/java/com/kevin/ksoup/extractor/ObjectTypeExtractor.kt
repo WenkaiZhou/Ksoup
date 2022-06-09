@@ -9,7 +9,7 @@ import java.lang.reflect.Field
 /**
  * ObjectTypeExtractor
  *
- * @author zhouwenkai@baidu.com, Created on 2021-06-27 20:22:01
+ * @author zwenkai@foxmail.com, Created on 2021-06-27 20:22:01
  *         Major Function：<b>Object type extractor</b>
  *         <p/>
  *         Note: If you modify this class please fill in the following content as a record.

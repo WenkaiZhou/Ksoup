@@ -8,7 +8,7 @@ import java.lang.reflect.Field
 /**
  * ByteTypeExtractor
  *
- * @author zhouwenkai@baidu.com, Created on 2021-06-27 18:49:39
+ * @author zwenkai@foxmail.com, Created on 2021-06-27 18:49:39
  *         Major Function：<b>Byte type extractor</b>
  *         <p/>
  *         Note: If you modify this class please fill in the following content as a record.
