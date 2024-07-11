@@ -19,9 +19,13 @@ internal object BooleanTypeExtractor : TypeExtractor<Boolean>() {
 
     override fun extract(node: Element, field: Field, defVal: Boolean?, ksoup: Ksoup): Boolean? {
         val pickClazz = field.getAnnotation(Pick::class.java) ?: return defVal
-        val value = IntTypeExtractor.getTargetText(node, pickClazz)
+        val value = getTargetText(node, pickClazz)
         return try {
-            value.toBoolean()
+            if (pickClazz.regex.isNotEmpty()) {
+                value?.isNotEmpty()
+            } else {
+                value.toBoolean()
+            }
         } catch (e: NumberFormatException) {
             e.printStackTrace()
             defVal
