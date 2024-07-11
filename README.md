@@ -7,7 +7,7 @@
 ## 引入
 
 ```
-implementation 'com.zwenkai:ksoup:1.0.1'
+implementation 'com.zwenkai:ksoup:1.1.0'
 ```
 
 ## 说明
@@ -33,7 +33,7 @@ implementation 'com.zwenkai:ksoup:1.0.1'
        var url: String = ""
    }
    ```
-   
+
 2. Html解析
 
    ```kotlin
