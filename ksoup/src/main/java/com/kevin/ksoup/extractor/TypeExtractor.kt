@@ -26,7 +26,7 @@ abstract class TypeExtractor<T> {
     fun getTargetText(node: Element, pick: Pick): String? {
         var content = extractText(node, pick.attr, pick.value)
         if (pick.regex.isNotEmpty()) {
-            content = content?.let{getRegexText(it, pick.regex)}
+            content = content?.let { getRegexText(it, pick.regex) }
         }
         return content
     }
@@ -42,7 +42,7 @@ abstract class TypeExtractor<T> {
      */
     private fun extractText(element: Element, attributeKey: String, cssQuery: String): String? {
         val selected = extractElements(element, cssQuery)
-        return when(attributeKey.lowercase(Locale.getDefault())) {
+        return when (attributeKey.lowercase(Locale.getDefault())) {
             Attrs.TEXT -> selected.text()
             Attrs.HTML, Attrs.INNER_HTML -> selected.html()
             else -> selected.attr(attributeKey)
@@ -55,10 +55,12 @@ abstract class TypeExtractor<T> {
                 val realCssQuery = cssQuery.replace(":first", "")
                 Elements(element.selectFirst(realCssQuery))
             }
+
             cssQuery.contains(":last") -> {
                 val realCssQuery = cssQuery.replace(":last", "")
                 Elements(element.selectLast(realCssQuery))
             }
+
             cssQuery.contains(":not") -> {
                 val regex = """\:not\((.*)\)""".toRegex()
                 val notPart = regex.find(cssQuery)?.groupValues?.get(1)
@@ -66,6 +68,7 @@ abstract class TypeExtractor<T> {
                 val res = element.select(realCssQuery)
                 notPart?.let { res.not(it) } ?: res
             }
+
             else -> element.select(cssQuery)
         }
     }
