@@ -26,7 +26,7 @@ abstract class TypeExtractor<T> {
     fun getTargetText(node: Element, pick: Pick): String? {
         var content = extractText(node, pick.attr, pick.value)
         if (pick.regex.isNotEmpty()) {
-            content = content?.let { getRegexText(it, pick.regex) }
+            content = content?.let { getRegexText(it, pick.regex, pick.index) }
         }
         return content
     }
@@ -77,16 +77,17 @@ abstract class TypeExtractor<T> {
      * Get the target regex text.
      *
      * @param content   the character sequence to be matched
-     * @param regex     the regex
-     * @return          the matched text
+     * @param regex     the expression to be compiled
+     * @param index     the index of a capturing group in this matcher's pattern
+     * @return          The (possibly empty) subsequence captured by the group during the previous match, or null if the group failed to match part of the input
      */
-    private fun getRegexText(content: String, regex: String): String {
+    private fun getRegexText(content: String, regex: String, index: Int): String? {
         val pattern = Pattern.compile(regex)
         val matcher = pattern.matcher(content)
-        while (matcher.find()) {
-            return matcher.group(0)
+        if (matcher.find()) {
+            return matcher.group(index)
         }
-        return ""
+        return null
     }
 }
 

@@ -18,5 +18,6 @@ annotation class Pick(
 
     val value: String = "",
     val attr: String = Attrs.TEXT,
-    val regex: String = ""
+    val regex: String = "",
+    val index: Int = 0
 )
